@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/orange/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"3zinc.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"manual"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="FHQ_Treap，是一种基于分裂与合并的 Treap。 相比于 Splay，FHQ_Treap 更加容易理解、功能更强大，且实现更简单。 让 Splay 成为时代的眼泪吧！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FHQ-Treap 详解">
+<meta property="og:url" content="https://3zinc.github.io/2023/11/18/FHQ-Treap-%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="3ZincBlog">
+<meta property="og:description" content="FHQ_Treap，是一种基于分裂与合并的 Treap。 相比于 Splay，FHQ_Treap 更加容易理解、功能更强大，且实现更简单。 让 Splay 成为时代的眼泪吧！">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.luogu.com.cn/upload/image_hosting/fb7c5iui.png">
+<meta property="article:published_time" content="2023-11-18T12:15:03.000Z">
+<meta property="article:modified_time" content="2023-12-22T09:11:23.783Z">
+<meta property="article:author" content="3Zinc">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="模板">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.luogu.com.cn/upload/image_hosting/fb7c5iui.png">
+
+
+<link rel="canonical" href="https://3zinc.github.io/2023/11/18/FHQ-Treap-%E8%AF%A6%E8%A7%A3/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://3zinc.github.io/2023/11/18/FHQ-Treap-%E8%AF%A6%E8%A7%A3/","path":"2023/11/18/FHQ-Treap-详解/","title":"FHQ-Treap 详解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>FHQ-Treap 详解 | 3ZincBlog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">3ZincBlog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-杂物"><a href="/clutter/" rel="section"><i class="fa fa-dungeon fa-fw"></i>杂物</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#fhq-treap-%E5%9F%BA%E6%9C%AC%E5%8A%9F%E8%83%BD%E7%90%86%E8%AE%BA%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.</span> <span class="nav-text"> FHQ-Treap 基本功能理论与实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#fhq-treap-%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text"> FHQ-Treap 模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E4%B8%80%E5%88%86%E8%A3%82split"><span class="nav-number">1.2.</span> <span class="nav-text"> 操作一：分裂（Split）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E4%BA%8C%E5%90%88%E5%B9%B6merge"><span class="nav-number">1.3.</span> <span class="nav-text"> 操作二：合并（Merge）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E4%B8%89%E6%8F%92%E5%85%A5%E6%96%B0%E8%8A%82%E7%82%B9"><span class="nav-number">1.4.</span> <span class="nav-text"> 操作三：插入新节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%E6%9F%90%E4%B8%AA%E8%8A%82%E7%82%B9"><span class="nav-number">1.5.</span> <span class="nav-text"> 删除某个节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E6%9F%90%E4%B8%AA%E5%80%BC%E7%9A%84%E6%8E%92%E5%90%8D"><span class="nav-number">1.6.</span> <span class="nav-text"> 查询某个值的排名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E6%8E%92%E5%90%8D%E4%B8%BA-k-%E7%9A%84%E5%80%BC"><span class="nav-number">1.7.</span> <span class="nav-text"> 查询排名为 kkk 的值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2-x-%E7%9A%84%E5%89%8D%E9%A9%B1%E4%B8%8E%E5%90%8E%E7%BB%A7"><span class="nav-number">1.8.</span> <span class="nav-text"> 查询 xxx 的前驱与后继</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#end-of-this-unit"><span class="nav-number">1.9.</span> <span class="nav-text"> End of this unit</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#fhq-treap-%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text"> FHQ-Treap 的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B4%9B%E8%B0%B7-p3369"><span class="nav-number">2.1.</span> <span class="nav-text"> 洛谷 P3369</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B4%9B%E8%B0%B7-p3391"><span class="nav-number">2.2.</span> <span class="nav-text"> 洛谷 P3391</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#end"><span class="nav-number">3.</span> <span class="nav-text"> END</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="3Zinc"
+      src="/images/head.jpg">
+  <p class="site-author-name" itemprop="name">3Zinc</p>
+  <div class="site-description" itemprop="description">帅气无比屌炸天，阎王夸我够阴间</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/TimelessWelkin" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;TimelessWelkin" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:Time1essWelkin@outlook.com" title="E-Mail → mailto:Time1essWelkin@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://www.luogu.com.cn/blog/renzhenhao/" title="https:&#x2F;&#x2F;www.luogu.com.cn&#x2F;blog&#x2F;renzhenhao&#x2F;" rel="noopener" target="_blank">Sane1981 Blog</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://www.luogu.com.cn/blog/chenyuyang/" title="https:&#x2F;&#x2F;www.luogu.com.cn&#x2F;blog&#x2F;chenyuyang&#x2F;" rel="noopener" target="_blank">Cyy Blog</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://www.cnblogs.com/TimelessWelkinBlog" title="https:&#x2F;&#x2F;www.cnblogs.com&#x2F;TimelessWelkinBlog" rel="noopener" target="_blank">Tiw's another Blog</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://3zinc.github.io/2023/11/18/FHQ-Treap-%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="3Zinc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="3ZincBlog">
+      <meta itemprop="description" content="帅气无比屌炸天，阎王夸我够阴间">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="FHQ-Treap 详解 | 3ZincBlog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          FHQ-Treap 详解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-11-18 20:15:03" itemprop="dateCreated datePublished" datetime="2023-11-18T20:15:03+08:00">2023-11-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-12-22 17:11:23" itemprop="dateModified" datetime="2023-12-22T17:11:23+08:00">2023-12-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">算法</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%AE%97%E6%B3%95/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">数据结构</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="fhq-treap-基本功能理论与实现"><a class="markdownIt-Anchor" href="#fhq-treap-基本功能理论与实现"></a> FHQ-Treap 基本功能理论与实现</h1>
+<p>不同于经典的基于<a target="_blank" rel="noopener" href="https://blog.csdn.net/zhaochuanfei666/article/details/110518539">左旋、右旋的 Treap</a>，FHQ-Treap 是基于分裂与合并的的一种 Treap。虽然两者操作方式完全不同，但产生的结果是一样的。而且，FHQ-Treap 具有<strong>好写</strong>（打板子超快）、<strong>好理解</strong>（左旋右旋我到现在还没搞明白）以及可持久化、区间翻转、移动等等一大坨优点。</p>
+<p>（%%% FHQ 大佬）</p>
+<p>接下来会详细介绍 FHQ-Treap。</p>
+<h2 id="fhq-treap-模型"><a class="markdownIt-Anchor" href="#fhq-treap-模型"></a> FHQ-Treap 模型</h2>
+<p>首先，它是一个 <strong>Treap</strong>；其次，它是一个基于<strong>分裂+合并</strong>的 Treap。</p>
+<p>比如，可以通过创建一个只有根节点的 Treap，然后再和原来的 Treap 合并，这就是插入节点。</p>
+<p>再比如，可以通过分裂开 Treap，把某个节点分离开，合并其他的节点，这就是删除节点。</p>
+<p>……如此好用、好理解的 FHQ-Treap 如何实现呢？</p>
+<p>Treap 的话就不多说了，可以参考上面的博客；那么如何在<strong>分裂+合并</strong>操作中维护这个 Treap 呢？</p>
+<p>众所周知，Treap 要维护的无非两点：</p>
+<ol>
+<li>
+<p>键值（key），满足左儿子键值 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo></mrow><annotation encoding="application/x-tex">\leq</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719400000000001em;vertical-align:-0.13597em;"></span><span class="mrel">≤</span></span></span></span> 该节点键值 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo></mrow><annotation encoding="application/x-tex">\leq</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719400000000001em;vertical-align:-0.13597em;"></span><span class="mrel">≤</span></span></span></span> 右儿子键值。</p>
+</li>
+<li>
+<p>优先级（pri），满足左儿子优先级或右儿子的优先级 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo></mrow><annotation encoding="application/x-tex">\leq</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719400000000001em;vertical-align:-0.13597em;"></span><span class="mrel">≤</span></span></span></span> 该节点的优先级。</p>
+</li>
+</ol>
+<p>我们需要在分裂操作与合并操作中根据这两点对 Treap 进行维护（因为其他操作都建立在这两个操作上）。</p>
+<p>我们定义一个结构体，记录 Treap 上每个点的信息。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Node</span> &#123;</span><br><span class="line">    <span class="type">int</span> lsn,rsn;</span><br><span class="line">    <span class="type">int</span> key,pri,siz;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="type">int</span> tSize=<span class="number">0</span>,root=<span class="number">0</span>;</span><br><span class="line">Node treap[MS];</span><br></pre></td></tr></table></figure>
+<p>其中 <code>tSize</code> 是节点个数，<code>root</code> 是 Treap 的根。这里使用了数组的方式存储 Treap。</p>
+<h2 id="操作一分裂split"><a class="markdownIt-Anchor" href="#操作一分裂split"></a> 操作一：分裂（Split）</h2>
+<p>Split 需要考虑四个参数，分别是当前遍历到的节点、分裂的标准、传递回的两棵树的根。</p>
+<p>一般，Split 都是讲某个 Treap 分裂成一个小于等于某值的 Treap，一个大于该值的 Treap。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">split</span><span class="params">(<span class="type">int</span> u,<span class="type">int</span> x,<span class="type">int</span> &amp;L,<span class="type">int</span> &amp;R)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>其中很妙的一点，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi></mrow><annotation encoding="application/x-tex">L</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal">L</span></span></span></span> 与 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span> 都传递了它的地址，即可通过该操作修改某个 Treap 的左子树、右子树信息或传递回分裂开的两个 Treap 的编号。这一点在后面的应用中<strong>十分重要</strong>。</p>
+<p>那么如何分裂呢？</p>
+<p><img src="https://cdn.luogu.com.cn/upload/image_hosting/fb7c5iui.png" alt="" /></p>
+<p>（这里分裂的操作并不用到优先级，节点上的值都是键值）</p>
+<p>很明显的可以看出：</p>
+<ul>
+<li>
+<p>当目前枚举到的 Treap 的根要<strong>小于等于分裂标准</strong>时，其<strong>左子树都必然小于等于分裂标准</strong>，只用考虑右子树；</p>
+</li>
+<li>
+<p>反之，当目前 Treap 的根要<strong>大于分裂标准是</strong>，其<strong>右子树必然都大于分裂标准</strong>，只用考虑左子树。</p>
+</li>
+</ul>
+<p>所以，代码就很明显了：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">split</span><span class="params">(<span class="type">int</span> u,<span class="type">int</span> x,<span class="type">int</span> &amp;L,<span class="type">int</span> &amp;R)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(u==<span class="number">0</span>) &#123;</span><br><span class="line">        L=R=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(treap[u].key&lt;=x) L=u,<span class="built_in">split</span>(treap[u].rsn,x,treap[u].rsn,R);</span><br><span class="line">    <span class="keyword">else</span> R=u,<span class="built_in">split</span>(treap[u].lsn,x,L,treap[u].lsn);</span><br><span class="line">    <span class="built_in">updateRoot</span>(u);</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于 Split 的时间复杂度就是树高，所以它的期望时间复杂度为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">O</mi><mo stretchy="false">(</mo><msubsup><mo><mi>log</mi><mo>⁡</mo></mo><mn>2</mn><mi>n</mi></msubsup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{O}(\log_2^n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathcal" style="margin-right:0.02778em;">O</span></span><span class="mopen">(</span><span class="mop"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.748732em;"><span style="top:-2.4530000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span><span style="top:-3.1473400000000002em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></p>
+<h2 id="操作二合并merge"><a class="markdownIt-Anchor" href="#操作二合并merge"></a> 操作二：合并（Merge）</h2>
+<p>划重点：<strong>Merge 的性质：Merge 要满足合并的两个 Treap （用根 L 与 R 表示），L 中的值都小于等于 R！</strong></p>
+<p>合并的时候，就要考虑优先值了。先比较两颗 Treap 的根节点的优先值大小。如果 L 大，把 R 合并到 L 的右子树上去；否则，把 L 合并到 R 的左子树上去（因为 L 中的值都小于 R）。最终，Merge 要返回合并后的根。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">merge</span><span class="params">(<span class="type">int</span> L,<span class="type">int</span> R)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(L==<span class="number">0</span>||R==<span class="number">0</span>) <span class="keyword">return</span> L+R;</span><br><span class="line">    <span class="keyword">if</span>(treap[L].pri&gt;treap[R].pri) &#123;</span><br><span class="line">        treap[L].rsn=<span class="built_in">merge</span>(treap[L].rsn,R);</span><br><span class="line">        <span class="built_in">updateRoot</span>(L);</span><br><span class="line">        <span class="keyword">return</span> L;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        treap[R].lsn=<span class="built_in">merge</span>(L,treap[R].lsn);</span><br><span class="line">        <span class="built_in">updateRoot</span>(R);</span><br><span class="line">        <span class="keyword">return</span> R;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>顺便说一下 <code>updateRoot</code>。用来更新某个节点为根的 Treap 的大小（求排名什么的要用到）。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">updateRoot</span><span class="params">(<span class="type">int</span> u)</span> </span>&#123;</span><br><span class="line">    treap[u].siz=treap[treap[u].lsn].siz+treap[treap[u].rsn].siz+<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同上，期望时间复杂度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">O</mi><mo stretchy="false">(</mo><msubsup><mo><mi>log</mi><mo>⁡</mo></mo><mn>2</mn><mi>n</mi></msubsup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{O}(\log_2^n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathcal" style="margin-right:0.02778em;">O</span></span><span class="mopen">(</span><span class="mop"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.748732em;"><span style="top:-2.4530000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span><span style="top:-3.1473400000000002em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi mathvariant="normal">.</mi><mi>S</mi><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">P.S.</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mord">.</span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mord">.</span></span></span></span> 到目前为止，FHQ-Treap 最难的部分都已经被你搞明白啦！剩下的都很简单的啦！</p>
+<h2 id="操作三插入新节点"><a class="markdownIt-Anchor" href="#操作三插入新节点"></a> 操作三：插入新节点</h2>
+<p>这很简单，首先创建一个只有一个节点的 Treap：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">makeNewNode</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    ++tSize;</span><br><span class="line">    treap[tSize].siz=<span class="number">1</span>;</span><br><span class="line">    treap[tSize].lsn=treap[tSize].rsn=<span class="number">0</span>;</span><br><span class="line">    treap[tSize].key=x,treap[tSize].pri=<span class="built_in">rand</span>();</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再把这个 Treap 合并到大 Treap 上：（注意 <strong>Merge 的性质</strong>，所以要先分裂）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">insert</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> L,R;</span><br><span class="line">    <span class="built_in">split</span>(root,x,L,R);</span><br><span class="line">    <span class="built_in">makeNewNode</span>(x);</span><br><span class="line">    root=<span class="built_in">merge</span>(<span class="built_in">merge</span>(L,tSize),R);</span><br><span class="line">    <span class="keyword">return</span> tSize;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="删除某个节点"><a class="markdownIt-Anchor" href="#删除某个节点"></a> 删除某个节点</h2>
+<p>这里假设只删除一个与查询的值相通的节点。</p>
+<p>先分裂出一颗全是要删除的值的 Treap，然后把这个 Treap 的左子树与右子树进行合并（把根丢掉），实现该操作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">delNum</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> L,M,R;</span><br><span class="line">    <span class="built_in">split</span>(root,x,L,R);</span><br><span class="line">    <span class="built_in">split</span>(L,x<span class="number">-1</span>,L,M);</span><br><span class="line">    M=<span class="built_in">merge</span>(treap[M].lsn,treap[M].rsn);</span><br><span class="line">    root=<span class="built_in">merge</span>(<span class="built_in">merge</span>(L,M),R);</span><br><span class="line">    <span class="keyword">return</span> root;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然，如果你要一次性删除所有值为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi></mrow><annotation encoding="application/x-tex">x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal">x</span></span></span></span> 的节点，可以这么写：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">delNum</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> L,M,R;</span><br><span class="line">    <span class="built_in">split</span>(root,x,L,R);</span><br><span class="line">    <span class="built_in">split</span>(L,x<span class="number">-1</span>,L,M);</span><br><span class="line">    root=<span class="built_in">merge</span>(L,R);</span><br><span class="line">    <span class="keyword">return</span> root;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="查询某个值的排名"><a class="markdownIt-Anchor" href="#查询某个值的排名"></a> 查询某个值的排名</h2>
+<p>不说了，把小于 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi></mrow><annotation encoding="application/x-tex">x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal">x</span></span></span></span> 的分裂出来，它的大小加一。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">getRank</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> L,R,res;</span><br><span class="line">    <span class="built_in">split</span>(root,x<span class="number">-1</span>,L,R);</span><br><span class="line">    res=treap[L].siz+<span class="number">1</span>;</span><br><span class="line">    root=<span class="built_in">merge</span>(L,R);</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="查询排名为-k-的值"><a class="markdownIt-Anchor" href="#查询排名为-k-的值"></a> 查询排名为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span> 的值</h2>
+<p>很好理解。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">kth</span><span class="params">(<span class="type">int</span> u,<span class="type">int</span> k)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(k==treap[treap[u].lsn].siz+<span class="number">1</span>) <span class="keyword">return</span> u;</span><br><span class="line">    <span class="keyword">if</span>(k&lt;=treap[treap[u].lsn].siz) <span class="keyword">return</span> <span class="built_in">kth</span>(treap[u].lsn,k);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">kth</span>(treap[u].rsn,k-treap[treap[u].lsn].siz<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="查询-x-的前驱与后继"><a class="markdownIt-Anchor" href="#查询-x-的前驱与后继"></a> 查询 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi></mrow><annotation encoding="application/x-tex">x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal">x</span></span></span></span> 的前驱与后继</h2>
+<p>见代码。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 前驱</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">precursor</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> L,R,res;</span><br><span class="line">    <span class="built_in">split</span>(root,x<span class="number">-1</span>,L,R);</span><br><span class="line">    res=treap[<span class="built_in">kth</span>(L,treap[L].siz)].key;</span><br><span class="line">    root=<span class="built_in">merge</span>(L,R);</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 后继</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">successor</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> L,R,res;</span><br><span class="line">    <span class="built_in">split</span>(root,x,L,R);</span><br><span class="line">    res=treap[<span class="built_in">kth</span>(R,<span class="number">1</span>)].key;</span><br><span class="line">    root=<span class="built_in">merge</span>(L,R);</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="end-of-this-unit"><a class="markdownIt-Anchor" href="#end-of-this-unit"></a> End of this unit</h2>
+<p>以上就是所有 FHQ-Treap 的基本操作，接下来讲几个应用。</p>
+<h1 id="fhq-treap-的应用"><a class="markdownIt-Anchor" href="#fhq-treap-的应用"></a> FHQ-Treap 的应用</h1>
+<h2 id="洛谷-p3369"><a class="markdownIt-Anchor" href="#洛谷-p3369"></a> 洛谷 P3369</h2>
+<p>不说，套板子。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        CppCode
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> n;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> MS=<span class="number">100005</span>;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Node</span> &#123;</span><br><span class="line">    <span class="type">int</span> lsn,rsn;</span><br><span class="line">    <span class="type">int</span> key,pri,siz;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="type">int</span> tSize=<span class="number">0</span>,root=<span class="number">0</span>;</span><br><span class="line">Node treap[MS];</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">makeNewNode</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    ++tSize;</span><br><span class="line">    treap[tSize].siz=<span class="number">1</span>;</span><br><span class="line">    treap[tSize].lsn=treap[tSize].rsn=<span class="number">0</span>;</span><br><span class="line">    treap[tSize].key=x,treap[tSize].pri=<span class="built_in">rand</span>();</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">updateRoot</span><span class="params">(<span class="type">int</span> u)</span> </span>&#123;</span><br><span class="line">    treap[u].siz=treap[treap[u].lsn].siz+treap[treap[u].rsn].siz+<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">split</span><span class="params">(<span class="type">int</span> u,<span class="type">int</span> x,<span class="type">int</span> &amp;L,<span class="type">int</span> &amp;R)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(u==<span class="number">0</span>) &#123;</span><br><span class="line">        L=R=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(treap[u].key&lt;=x) L=u,<span class="built_in">split</span>(treap[u].rsn,x,treap[u].rsn,R);</span><br><span class="line">    <span class="keyword">else</span> R=u,<span class="built_in">split</span>(treap[u].lsn,x,L,treap[u].lsn);</span><br><span class="line">    <span class="built_in">updateRoot</span>(u);</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">merge</span><span class="params">(<span class="type">int</span> L,<span class="type">int</span> R)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(L==<span class="number">0</span>||R==<span class="number">0</span>) <span class="keyword">return</span> L+R;</span><br><span class="line">    <span class="keyword">if</span>(treap[L].pri&gt;treap[R].pri) &#123;</span><br><span class="line">        treap[L].rsn=<span class="built_in">merge</span>(treap[L].rsn,R);</span><br><span class="line">        <span class="built_in">updateRoot</span>(L);</span><br><span class="line">        <span class="keyword">return</span> L;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        treap[R].lsn=<span class="built_in">merge</span>(L,treap[R].lsn);</span><br><span class="line">        <span class="built_in">updateRoot</span>(R);</span><br><span class="line">        <span class="keyword">return</span> R;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">insert</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> L,R;</span><br><span class="line">    <span class="built_in">split</span>(root,x,L,R);</span><br><span class="line">    <span class="built_in">makeNewNode</span>(x);</span><br><span class="line">    root=<span class="built_in">merge</span>(<span class="built_in">merge</span>(L,tSize),R);</span><br><span class="line">    <span class="keyword">return</span> tSize;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">delNum</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> L,M,R;</span><br><span class="line">    <span class="built_in">split</span>(root,x,L,R);</span><br><span class="line">    <span class="built_in">split</span>(L,x<span class="number">-1</span>,L,M);</span><br><span class="line">    M=<span class="built_in">merge</span>(treap[M].lsn,treap[M].rsn);</span><br><span class="line">    root=<span class="built_in">merge</span>(<span class="built_in">merge</span>(L,M),R);</span><br><span class="line">    <span class="keyword">return</span> root;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">getRank</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> L,R,res;</span><br><span class="line">    <span class="built_in">split</span>(root,x<span class="number">-1</span>,L,R);</span><br><span class="line">    res=treap[L].siz+<span class="number">1</span>;</span><br><span class="line">    root=<span class="built_in">merge</span>(L,R);</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">kth</span><span class="params">(<span class="type">int</span> u,<span class="type">int</span> k)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(k==treap[treap[u].lsn].siz+<span class="number">1</span>) <span class="keyword">return</span> u;</span><br><span class="line">    <span class="keyword">if</span>(k&lt;=treap[treap[u].lsn].siz) <span class="keyword">return</span> <span class="built_in">kth</span>(treap[u].lsn,k);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">kth</span>(treap[u].rsn,k-treap[treap[u].lsn].siz<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">precursor</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> L,R,res;</span><br><span class="line">    <span class="built_in">split</span>(root,x<span class="number">-1</span>,L,R);</span><br><span class="line">    res=treap[<span class="built_in">kth</span>(L,treap[L].siz)].key;</span><br><span class="line">    root=<span class="built_in">merge</span>(L,R);</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">successor</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> L,R,res;</span><br><span class="line">    <span class="built_in">split</span>(root,x,L,R);</span><br><span class="line">    res=treap[<span class="built_in">kth</span>(R,<span class="number">1</span>)].key;</span><br><span class="line">    root=<span class="built_in">merge</span>(L,R);</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>,&amp;n);</span><br><span class="line">    <span class="keyword">while</span>(n--) &#123;</span><br><span class="line">        <span class="type">int</span> opt,x;</span><br><span class="line">        <span class="built_in">scanf</span>(<span class="string">&quot;%d%d&quot;</span>,&amp;opt,&amp;x);</span><br><span class="line">        <span class="keyword">if</span>(opt==<span class="number">1</span>) <span class="built_in">insert</span>(x);</span><br><span class="line">        <span class="keyword">if</span>(opt==<span class="number">2</span>) <span class="built_in">delNum</span>(x);</span><br><span class="line">        <span class="keyword">if</span>(opt==<span class="number">3</span>) <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>,<span class="built_in">getRank</span>(x));</span><br><span class="line">        <span class="keyword">if</span>(opt==<span class="number">4</span>) <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>,treap[<span class="built_in">kth</span>(root,x)].key);</span><br><span class="line">        <span class="keyword">if</span>(opt==<span class="number">5</span>) <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>,<span class="built_in">precursor</span>(x));</span><br><span class="line">        <span class="keyword">if</span>(opt==<span class="number">6</span>) <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>,<span class="built_in">successor</span>(x));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<h2 id="洛谷-p3391"><a class="markdownIt-Anchor" href="#洛谷-p3391"></a> 洛谷 P3391</h2>
+<p>翻转参考线段树的 <code>lazy_tag</code>。分裂的时候要稍微改一下，和查询排名一样。</p>
+<div class='spoiler collapsed'>
+    <div class='spoiler-title'>
+        CppCode
+    </div>
+    <div class='spoiler-content'>
+        <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> n,m;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> MS=<span class="number">100005</span>;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Node</span> &#123;</span><br><span class="line">    <span class="type">int</span> lsn,rsn;</span><br><span class="line">    <span class="type">int</span> key,pri,siz;</span><br><span class="line">    <span class="type">int</span> lazy;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="type">int</span> tSize=<span class="number">0</span>,root=<span class="number">0</span>;</span><br><span class="line">Node treap[MS];</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">makeNewNode</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">    ++tSize;</span><br><span class="line">    treap[tSize].siz=<span class="number">1</span>;</span><br><span class="line">    treap[tSize].lazy=treap[tSize].lsn=treap[tSize].rsn=<span class="number">0</span>;</span><br><span class="line">    treap[tSize].key=x,treap[tSize].pri=<span class="built_in">rand</span>();</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">updateRoot</span><span class="params">(<span class="type">int</span> u)</span> </span>&#123;</span><br><span class="line">    treap[u].siz=treap[treap[u].lsn].siz+treap[treap[u].rsn].siz+<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">pushDown</span><span class="params">(<span class="type">int</span> u)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(treap[u].lazy) &#123;</span><br><span class="line">        <span class="built_in">swap</span>(treap[u].lsn,treap[u].rsn);</span><br><span class="line">        treap[treap[u].lsn].lazy^=<span class="number">1</span>;</span><br><span class="line">        treap[treap[u].rsn].lazy^=<span class="number">1</span>;</span><br><span class="line">        treap[u].lazy=<span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">split</span><span class="params">(<span class="type">int</span> u,<span class="type">int</span> x,<span class="type">int</span> &amp;L,<span class="type">int</span> &amp;R)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(u==<span class="number">0</span>) &#123;</span><br><span class="line">        L=R=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">pushDown</span>(u);</span><br><span class="line">    <span class="keyword">if</span>(treap[treap[u].lsn].siz+<span class="number">1</span>&lt;=x)</span><br><span class="line">        L=u,<span class="built_in">split</span>(treap[u].rsn,x-treap[treap[u].lsn].siz<span class="number">-1</span>,treap[u].rsn,R);</span><br><span class="line">    <span class="keyword">else</span> R=u,<span class="built_in">split</span>(treap[u].lsn,x,L,treap[u].lsn);</span><br><span class="line">    <span class="built_in">updateRoot</span>(u);</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">merge</span><span class="params">(<span class="type">int</span> L,<span class="type">int</span> R)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(L==<span class="number">0</span>||R==<span class="number">0</span>) <span class="keyword">return</span> L+R;</span><br><span class="line">    <span class="keyword">if</span>(treap[L].pri&gt;treap[R].pri) &#123;</span><br><span class="line">        <span class="built_in">pushDown</span>(L);</span><br><span class="line">        treap[L].rsn=<span class="built_in">merge</span>(treap[L].rsn,R);</span><br><span class="line">        <span class="built_in">updateRoot</span>(L);</span><br><span class="line">        <span class="keyword">return</span> L;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">pushDown</span>(R);</span><br><span class="line">        treap[R].lsn=<span class="built_in">merge</span>(L,treap[R].lsn);</span><br><span class="line">        <span class="built_in">updateRoot</span>(R);</span><br><span class="line">        <span class="keyword">return</span> R;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">inorder</span><span class="params">(<span class="type">int</span> u)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(u==<span class="number">0</span>) <span class="keyword">return</span> ;</span><br><span class="line">    <span class="built_in">pushDown</span>(u);</span><br><span class="line">    <span class="built_in">inorder</span>(treap[u].lsn);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d &quot;</span>,treap[u].key);</span><br><span class="line">    <span class="built_in">inorder</span>(treap[u].rsn);</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d%d&quot;</span>,&amp;n,&amp;m);</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;=n;i++) <span class="built_in">makeNewNode</span>(i),root=<span class="built_in">merge</span>(root,tSize);</span><br><span class="line">    <span class="keyword">while</span>(m--) &#123;</span><br><span class="line">        <span class="type">int</span> l,r;</span><br><span class="line">        <span class="built_in">scanf</span>(<span class="string">&quot;%d%d&quot;</span>,&amp;l,&amp;r);</span><br><span class="line">        <span class="type">int</span> L,R,mid;</span><br><span class="line">        <span class="built_in">split</span>(root,r,L,R);</span><br><span class="line">        <span class="built_in">split</span>(L,l<span class="number">-1</span>,L,mid);</span><br><span class="line">        treap[mid].lazy^=<span class="number">1</span>;</span><br><span class="line">        root=<span class="built_in">merge</span>(<span class="built_in">merge</span>(L,mid),R);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">inorder</span>(root);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+</div>
+<h1 id="end"><a class="markdownIt-Anchor" href="#end"></a> END</h1><link rel="stylesheet" href="/css/spoiler.css" type="text/css"><script src="/js/spoiler.js" type="text/javascript" async></script>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+              <a href="/tags/%E6%A8%A1%E6%9D%BF/" rel="tag"># 模板</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/11/18/hello-world/" rel="prev" title="Hello, world!">
+                  <i class="fa fa-angle-left"></i> Hello, world!
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/11/18/P6864-%E9%A2%98%E8%A7%A3/" rel="next" title="P6864 题解">
+                  P6864 题解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">3Zinc</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+  <script class="next-config" data-name="katex" type="application/json">{"copy_tex_js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/copy-tex.min.js","integrity":"sha256-Us54+rSGDSTvIhKKUs4kygE2ipA0RXpWWh0/zLqw3bs="}}</script>
+  <script src="/js/third-party/math/katex.js"></script>
+
+
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"3zinc/3zinc_blog_comment","repo_id":"R_kgDOLBG7Ew","category":"Announcements","category_id":"DIC_kwDOLBG7E84CcNmU","mapping":"url","reactions_enabled":1,"emit_metadata":1,"theme":"light_protanopia","lang":"zh-CN","crossorigin":"anonymous","input_position":"top","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>
